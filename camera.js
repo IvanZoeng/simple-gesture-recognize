@@ -18,8 +18,9 @@ import * as posenet from '@tensorflow-models/posenet';
 import dat from 'dat.gui';
 import Stats from 'stats.js';
 import _ from 'lodash'
+import {check} from './check'
 
-import { drawBoundingBox, drawKeypoints, drawSkeleton, isMobile, toggleLoadingUI, tryResNetButtonName, tryResNetButtonText, updateTryResNetButtonDatGuiCss } from './demo_util';
+import { drawBoundingBox, drawKeypoints, drawSkeleton, isMobile, tryResNetButtonName, tryResNetButtonText, updateTryResNetButtonDatGuiCss } from './demo_util';
 
 const videoWidth = 600;
 const videoHeight = 500;
@@ -281,14 +282,6 @@ function setupGui(cameras, net) {
 }
 
 /**
- * Sets up a frames per second panel on the top-left of the window
- */
-function setupFPS() {
-  stats.showPanel(0);  // 0: fps, 1: ms, 2: mb, 3+: custom
-  document.getElementById('main').appendChild(stats.dom);
-}
-
-/**
  * Feeds an image to posenet to estimate poses - this is where the magic
  * happens. This function loops with a requestAnimationFrame method.
  */
@@ -306,83 +299,6 @@ function detectPoseInRealTime(video, net) {
   canvas.height = videoHeight;
 
   async function poseDetectionFrame() {
-    if (guiState.changeToArchitecture) {
-      // Important to purge variables and free up GPU memory
-      guiState.net.dispose();
-      toggleLoadingUI(true);
-      guiState.net = await posenet.load({
-        architecture: guiState.changeToArchitecture,
-        outputStride: guiState.outputStride,
-        inputResolution: guiState.inputResolution,
-        multiplier: guiState.multiplier,
-      });
-      toggleLoadingUI(false);
-      guiState.architecture = guiState.changeToArchitecture;
-      guiState.changeToArchitecture = null;
-    }
-
-    if (guiState.changeToMultiplier) {
-      guiState.net.dispose();
-      toggleLoadingUI(true);
-      guiState.net = await posenet.load({
-        architecture: guiState.architecture,
-        outputStride: guiState.outputStride,
-        inputResolution: guiState.inputResolution,
-        multiplier: +guiState.changeToMultiplier,
-        quantBytes: guiState.quantBytes
-      });
-      toggleLoadingUI(false);
-      guiState.multiplier = +guiState.changeToMultiplier;
-      guiState.changeToMultiplier = null;
-    }
-
-    if (guiState.changeToOutputStride) {
-      // Important to purge variables and free up GPU memory
-      guiState.net.dispose();
-      toggleLoadingUI(true);
-      guiState.net = await posenet.load({
-        architecture: guiState.architecture,
-        outputStride: +guiState.changeToOutputStride,
-        inputResolution: guiState.inputResolution,
-        multiplier: guiState.multiplier,
-        quantBytes: guiState.quantBytes
-      });
-      toggleLoadingUI(false);
-      guiState.outputStride = +guiState.changeToOutputStride;
-      guiState.changeToOutputStride = null;
-    }
-
-    if (guiState.changeToInputResolution) {
-      // Important to purge variables and free up GPU memory
-      guiState.net.dispose();
-      toggleLoadingUI(true);
-      guiState.net = await posenet.load({
-        architecture: guiState.architecture,
-        outputStride: guiState.outputStride,
-        inputResolution: +guiState.changeToInputResolution,
-        multiplier: guiState.multiplier,
-        quantBytes: guiState.quantBytes
-      });
-      toggleLoadingUI(false);
-      guiState.inputResolution = +guiState.changeToInputResolution;
-      guiState.changeToInputResolution = null;
-    }
-
-    if (guiState.changeToQuantBytes) {
-      // Important to purge variables and free up GPU memory
-      guiState.net.dispose();
-      toggleLoadingUI(true);
-      guiState.net = await posenet.load({
-        architecture: guiState.architecture,
-        outputStride: guiState.outputStride,
-        inputResolution: guiState.inputResolution,
-        multiplier: guiState.multiplier,
-        quantBytes: guiState.changeToQuantBytes
-      });
-      toggleLoadingUI(false);
-      guiState.quantBytes = guiState.changeToQuantBytes;
-      guiState.changeToQuantBytes = null;
-    }
 
     // Begin monitoring code for frames per second
     stats.begin();
@@ -428,6 +344,7 @@ function detectPoseInRealTime(video, net) {
     // For each pose (i.e. person) detected in an image, loop through the poses
     // and draw the resulting skeleton and keypoints if over certain confidence
     // scores
+    check(updatePosesArr(poses))
     poses.forEach(({ score, keypoints }) => {
       if (score >= minPoseConfidence) {
         if (guiState.output.showPoints) {
@@ -456,7 +373,6 @@ function detectPoseInRealTime(video, net) {
  * available camera devices, and setting off the detectPoseInRealTime function.
  */
 export async function bindPage() {
-  toggleLoadingUI(true);
   const net = await posenet.load({
     architecture: guiState.input.architecture,
     outputStride: guiState.input.outputStride,
@@ -464,39 +380,28 @@ export async function bindPage() {
     multiplier: guiState.input.multiplier,
     quantBytes: guiState.input.quantBytes
   });
-  toggleLoadingUI(false);
 
   let video;
 
   try {
     video = await loadVideo();
   } catch (e) {
-    let info = document.getElementById('info');
-    info.textContent = 'this browser does not support video capture,' +
-      'or this device does not have a camera';
-    info.style.display = 'block';
     throw e;
   }
 
   setupGui([], net);
-  setupFPS();
   detectPoseInRealTime(video, net);
 }
-
-navigator.getUserMedia = navigator.getUserMedia ||
-  navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-// kick off the demo
-bindPage();
 
 function updatePosesArr(poses) {
   const pose = poses[0];
 
   // 忽略分数过小的
-  if(!pose || pose.score < POSE_MIN_CONFIDENCE) {
+  if (!pose || pose.score < POSE_MIN_CONFIDENCE) {
     return
   }
 
-  if(posesArr.length >= POSE_SEQ_LENGTH) {
+  if (posesArr.length >= POSE_SEQ_LENGTH) {
     posesArr.pop()
   }
   posesArr.unshift(analyzePose(pose.keypoints))
@@ -511,10 +416,17 @@ function analyzePose(keypoints) {
     leftElbow: keypoints[7].position,
     rightElbow: keypoints[8].position,
   }
-  Object.assign(obj.leftWrist, {score: keypoints[9].score})
-  Object.assign(obj.rightWrist, {score: keypoints[10].score})
-  Object.assign(obj.leftElbow, {score: keypoints[7].score})
-  Object.assign(obj.rightElbow, {score: keypoints[8].score})
+  Object.assign(obj.leftWrist, { score: keypoints[9].score })
+  Object.assign(obj.rightWrist, { score: keypoints[10].score })
+  Object.assign(obj.leftElbow, { score: keypoints[7].score })
+  Object.assign(obj.rightElbow, { score: keypoints[8].score })
 
   return obj
 }
+
+
+
+navigator.getUserMedia = navigator.getUserMedia ||
+  navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+// kick off the demo
+bindPage();
