@@ -1,4 +1,4 @@
-import { bindPage } from './camera'
+import { bindPage, startVideo, stopVideo } from './camera'
 import { setConfig } from './config'
 
 // setConfig({
@@ -20,9 +20,11 @@ import { setConfig } from './config'
 //     videoHeight: 200
 // })
 
-// bindPage()
+bindPage()
+
 
 export default {
     start: bindPage,
-    setConfig
+    setConfig,
+    stopVideo
 }

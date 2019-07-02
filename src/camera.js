@@ -10,28 +10,23 @@ const POSE_SEQ_LENGTH = 3;
 // 最小分数
 const POSE_MIN_CONFIDENCE = 0.1;
 let posesArr = [];
+let stream;
+let video;
+let canvas;
 
 async function setupCamera() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     throw new Error('Browser API navigator.mediaDevices.getUserMedia not available');
   }
 
-  const video = document.createElement('video');
+  video = document.createElement('video');
   getConfig().parentNode.appendChild(video)
   video.style.display = 'none'
   video.style.scaleX = '-1'
   video.width = getConfig().videoWidth; 
   video.height = getConfig().videoHeight;
 
-  const stream = await navigator.mediaDevices.getUserMedia({
-    'audio': false,
-    'video': {
-      facingMode: 'user',
-      width: getConfig().videoWidth,
-      height: getConfig().videoHeight,
-    },
-  });
-  video.srcObject = stream;
+  await startVideo()
 
   return new Promise((resolve) => {
     video.onloadedmetadata = () => {
@@ -41,10 +36,31 @@ async function setupCamera() {
 }
 
 async function loadVideo() {
-  const video = await setupCamera();
+  video = await setupCamera();
   video.play();
 
   return video;
+}
+
+export function stopVideo() {
+  if(stream && stream.getVideoTracks) {
+    stream.getVideoTracks()[0].stop()
+    canvas.style.display = 'none'
+  }
+}
+
+export async function startVideo() {
+  stream = await navigator.mediaDevices.getUserMedia({
+    'audio': false,
+    'video': {
+      facingMode: 'user',
+      width: getConfig().videoWidth,
+      height: getConfig().videoHeight,
+    },
+  });
+
+  canvas && (canvas.style.display = 'block')
+  video.srcObject = stream;
 }
 
 const defaultQuantBytes = 2;
@@ -86,7 +102,7 @@ const guiState = {
  * happens. This function loops with a requestAnimationFrame method.
  */
 function detectPoseInRealTime(video, net) {
-  const canvas = document.createElement('canvas');
+  canvas = document.createElement('canvas');
   getConfig().parentNode.appendChild(canvas)
   if(getConfig().showCanvas === false) {
     canvas.style.display = 'none'
@@ -165,8 +181,6 @@ export async function bindPage() {
     multiplier: guiState.input.multiplier,
     quantBytes: guiState.input.quantBytes
   });
-
-  let video;
 
   try {
     video = await loadVideo();
