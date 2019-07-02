@@ -5,11 +5,6 @@ const color = 'red';
 const boundingBoxColor = 'aqua';
 const lineWidth = 2;
 
-export const tryResNetButtonName = 'tryResNetButton';
-export const tryResNetButtonText = '[New] Try ResNet50';
-const tryResNetButtonTextCss = 'width:100%;text-decoration:underline;';
-const tryResNetButtonBackgroundCss = 'background:#e61d5f;';
-
 function setDatGuiPropertyCss(propertyText, liCssString, spanCssString = '') {
   var spans = document.getElementsByClassName('property-name');
   for (var i = 0; i < spans.length; i++) {
@@ -21,12 +16,6 @@ function setDatGuiPropertyCss(propertyText, liCssString, spanCssString = '') {
       }
     }
   }
-}
-
-export function updateTryResNetButtonDatGuiCss() {
-  setDatGuiPropertyCss(
-    tryResNetButtonText, tryResNetButtonBackgroundCss,
-    tryResNetButtonTextCss);
 }
 
 function toTuple({ y, x }) {

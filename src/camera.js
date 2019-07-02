@@ -165,6 +165,7 @@ export async function bindPage() {
     multiplier: guiState.input.multiplier,
     quantBytes: guiState.input.quantBytes
   });
+  console.log(net)
 
   let video;
 

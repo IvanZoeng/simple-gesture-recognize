@@ -5,6 +5,11 @@ const MAIN_THRESHOLD = 30
 const CROSS_THRESHOLD = 10
 let isDetectHorizontal = true
 
+let leftCB = () => { }
+let rightCB = () => { }
+let upCB = () => { }
+let downCB = () => { }
+
 export function check(val) {
     if (!val) {
         return;
@@ -60,19 +65,36 @@ export function check(val) {
 
 let handleCheck = _.throttle(
     function (tip) {
-        console.log(tip)
-        // switch (tip) {
-        //     case "left":
-        //     case "down":
-        //         console.log("prev", new Date().toLocaleString());
-        //         this.prev();
-        //         break;
-        //     case "right":
-        //     case "up":
-        //         console.log("next", new Date().toLocaleString());
-        //         this.next();
-        //         break;
-        // }
+        switch (tip) {
+            case "left":
+                leftCB()
+                break;
+            case "down":
+                downCB()
+                break;
+            case "right":
+                rightCB()
+                break;
+            case "up":
+                upCB()
+                break;
+        }
     }, 500, {
         trailing: false
     })
+
+export function setLeftCB(fn) {
+    leftCB = fn
+}
+
+export function setRightCB(fn) {
+    rightCB = fn
+}
+
+export function setUpCB(fn) {
+    upCB = fn
+}
+
+export function setDownCB(fn) {
+    downCB = fn
+}
