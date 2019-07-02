@@ -1,12 +1,28 @@
-import {bindPage} from './camera'
-import {setLeftCB, setRightCB, setUpCB, setDownCB} from './check'
+import { bindPage } from './camera'
+import { setConfig } from './config'
 
-bindPage()
+// setConfig({
+//     leftCB: () => {
+//         console.log('zuo')
+//     },
+//     rightCB: () => {
+//         console.log('you')
+//     },
+//     upCB: () => {
+//         console.log('shang')
+//     },
+//     downCB: () => {
+//         console.log('xia')
+//     },
+//     mode: 'all',
+//     showCanvas: true,
+//     videoWidth: 200,
+//     videoHeight: 200
+// })
+
+// bindPage()
 
 export default {
     start: bindPage,
-    setLeftCB,
-    setRightCB,
-    setUpCB,
-    setDownCB
+    setConfig
 }

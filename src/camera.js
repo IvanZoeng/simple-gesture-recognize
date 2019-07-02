@@ -1,12 +1,9 @@
 import * as posenet from '@tensorflow-models/posenet';
 import _ from 'lodash'
 import {check} from './check'
+import {getConfig} from './config'
 
 import { drawBoundingBox, drawKeypoints, drawSkeleton } from './demo_util';
-
-const videoWidth = 600;
-const videoHeight = 500;
-const body = document.getElementsByTagName('body')[0]
 
 // pose序列长度
 const POSE_SEQ_LENGTH = 3;
@@ -20,18 +17,18 @@ async function setupCamera() {
   }
 
   const video = document.createElement('video');
-  body.appendChild(video)
+  getConfig().parentNode.appendChild(video)
   video.style.display = 'none'
   video.style.scaleX = '-1'
-  video.width = videoWidth; 
-  video.height = videoHeight;
+  video.width = getConfig().videoWidth; 
+  video.height = getConfig().videoHeight;
 
   const stream = await navigator.mediaDevices.getUserMedia({
     'audio': false,
     'video': {
       facingMode: 'user',
-      width: videoWidth,
-      height: videoHeight,
+      width: getConfig().videoWidth,
+      height: getConfig().videoHeight,
     },
   });
   video.srcObject = stream;
@@ -76,8 +73,8 @@ const guiState = {
     nmsRadius: 30.0,
   },
   output: {
-    showVideo: false,
-    showSkeleton: true,
+    showVideo: getConfig().showVideo,
+    showSkeleton: getConfig().showSkeleton,
     showPoints: true,
     showBoundingBox: false,
   },
@@ -90,7 +87,10 @@ const guiState = {
  */
 function detectPoseInRealTime(video, net) {
   const canvas = document.createElement('canvas');
-  body.appendChild(canvas)
+  getConfig().parentNode.appendChild(canvas)
+  if(getConfig().showCanvas === false) {
+    canvas.style.display = 'none'
+  }
   const ctx = canvas.getContext('2d');
 
   // since images are being fed from a webcam, we want to feed in the
@@ -99,8 +99,8 @@ function detectPoseInRealTime(video, net) {
   // permutation on all the keypoints.
   const flipPoseHorizontal = true;
 
-  canvas.width = videoWidth;
-  canvas.height = videoHeight;
+  canvas.width = getConfig().videoWidth;
+  canvas.height = getConfig().videoHeight;
 
   async function poseDetectionFrame() {
 
@@ -119,13 +119,13 @@ function detectPoseInRealTime(video, net) {
     minPoseConfidence = +guiState.multiPoseDetection.minPoseConfidence;
     minPartConfidence = +guiState.multiPoseDetection.minPartConfidence;
 
-    ctx.clearRect(0, 0, videoWidth, videoHeight);
+    ctx.clearRect(0, 0, getConfig().videoWidth, getConfig().videoHeight);
 
-    if (guiState.output.showVideo) {
+    if (getConfig().showVideo) {
       ctx.save();
       ctx.scale(-1, 1);
-      ctx.translate(-videoWidth, 0);
-      ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+      ctx.translate(-getConfig().videoWidth, 0);
+      ctx.drawImage(video, 0, 0, getConfig().videoWidth, getConfig().videoHeight);
       ctx.restore();
     }
 
@@ -135,13 +135,13 @@ function detectPoseInRealTime(video, net) {
     check(updatePosesArr(poses))
     poses.forEach(({ score, keypoints }) => {
       if (score >= minPoseConfidence) {
-        if (guiState.output.showPoints) {
+        if (getConfig().showPoints) {
           drawKeypoints(keypoints, minPartConfidence, ctx);
         }
-        if (guiState.output.showSkeleton) {
+        if (getConfig().showSkeleton) {
           drawSkeleton(keypoints, minPartConfidence, ctx);
         }
-        if (guiState.output.showBoundingBox) {
+        if (getConfig().showBoundingBox) {
           drawBoundingBox(keypoints, ctx);
         }
       }
@@ -165,7 +165,6 @@ export async function bindPage() {
     multiplier: guiState.input.multiplier,
     quantBytes: guiState.input.quantBytes
   });
-  console.log(net)
 
   let video;
 

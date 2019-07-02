@@ -1,14 +1,17 @@
 import _ from 'lodash'
+import { getConfig } from './config'
 
 const SCORE_THRESHOLD = 0.1
 const MAIN_THRESHOLD = 30
 const CROSS_THRESHOLD = 10
-let isDetectHorizontal = true
 
-let leftCB = () => { }
-let rightCB = () => { }
-let upCB = () => { }
-let downCB = () => { }
+function isDetectHorizonal() {
+    return getConfig().mode === 'h' || getConfig().mode === 'all'
+}
+
+function isDetectVertical() {
+    return getConfig().mode === 'v' || getConfig().mode === 'all'
+}
 
 export function check(val) {
     if (!val) {
@@ -46,7 +49,7 @@ export function check(val) {
 
     const k = Math.abs(deltaY / deltaX);
 
-    if (isDetectHorizontal && k < 0.3) {
+    if (isDetectHorizonal() && k < 0.3) {
         if (deltaX > MAIN_THRESHOLD) {
             handleCheck('right')
         } else if (deltaX < -MAIN_THRESHOLD) {
@@ -54,7 +57,7 @@ export function check(val) {
         }
     }
 
-    if (!isDetectHorizontal && k > 3) {
+    if (isDetectVertical() && k > 3) {
         if (deltaY > MAIN_THRESHOLD) {
             handleCheck('down')
         } else if (deltaY < -MAIN_THRESHOLD) {
@@ -67,34 +70,18 @@ let handleCheck = _.throttle(
     function (tip) {
         switch (tip) {
             case "left":
-                leftCB()
+                getConfig().leftCB()
                 break;
             case "down":
-                downCB()
+                getConfig().downCB()
                 break;
             case "right":
-                rightCB()
+                getConfig().rightCB()
                 break;
             case "up":
-                upCB()
+                getConfig().upCB()
                 break;
         }
     }, 500, {
         trailing: false
     })
-
-export function setLeftCB(fn) {
-    leftCB = fn
-}
-
-export function setRightCB(fn) {
-    rightCB = fn
-}
-
-export function setUpCB(fn) {
-    upCB = fn
-}
-
-export function setDownCB(fn) {
-    downCB = fn
-}
