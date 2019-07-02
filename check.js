@@ -1,4 +1,4 @@
-import { bindPage, getPosesArr } from './camera'
+import _ from 'lodash'
 
 const SCORE_THRESHOLD = 0.1
 const MAIN_THRESHOLD = 30
@@ -43,17 +43,36 @@ export function check(val) {
 
     if (isDetectHorizontal && k < 0.3) {
         if (deltaX > MAIN_THRESHOLD) {
-            console.log('right')
+            handleCheck('right')
         } else if (deltaX < -MAIN_THRESHOLD) {
-            console.log('left')
+            handleCheck('left')
         }
     }
 
     if (!isDetectHorizontal && k > 3) {
         if (deltaY > MAIN_THRESHOLD) {
-            console.log('up')
+            handleCheck('down')
         } else if (deltaY < -MAIN_THRESHOLD) {
-            console.log('down')
+            handleCheck('up')
         }
     }
 }
+
+let handleCheck = _.throttle(
+    function (tip) {
+        console.log(tip)
+        // switch (tip) {
+        //     case "left":
+        //     case "down":
+        //         console.log("prev", new Date().toLocaleString());
+        //         this.prev();
+        //         break;
+        //     case "right":
+        //     case "up":
+        //         console.log("next", new Date().toLocaleString());
+        //         this.next();
+        //         break;
+        // }
+    }, 500, {
+        trailing: false
+    })

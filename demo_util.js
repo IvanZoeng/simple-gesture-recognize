@@ -1,42 +1,14 @@
-/**
- * @license
- * Copyright 2018 Google Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * =============================================================================
- */
 import * as posenet from '@tensorflow-models/posenet';
 import * as tf from '@tensorflow/tfjs';
 
-const color = 'aqua';
-const boundingBoxColor = 'red';
+const color = 'red';
+const boundingBoxColor = 'aqua';
 const lineWidth = 2;
 
 export const tryResNetButtonName = 'tryResNetButton';
 export const tryResNetButtonText = '[New] Try ResNet50';
 const tryResNetButtonTextCss = 'width:100%;text-decoration:underline;';
 const tryResNetButtonBackgroundCss = 'background:#e61d5f;';
-
-function isAndroid() {
-  return /Android/i.test(navigator.userAgent);
-}
-
-function isiOS() {
-  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
-export function isMobile() {
-  return isAndroid() || isiOS();
-}
 
 function setDatGuiPropertyCss(propertyText, liCssString, spanCssString = '') {
   var spans = document.getElementsByClassName('property-name');
@@ -55,20 +27,6 @@ export function updateTryResNetButtonDatGuiCss() {
   setDatGuiPropertyCss(
     tryResNetButtonText, tryResNetButtonBackgroundCss,
     tryResNetButtonTextCss);
-}
-
-/**
- * Toggles between the loading UI and the main canvas UI.
- */
-export function toggleLoadingUI(
-  showLoadingUI, loadingDivId = 'loading', mainDivId = 'main') {
-  // if (showLoadingUI) {
-  //   document.getElementById(loadingDivId).style.display = 'block';
-  //   document.getElementById(mainDivId).style.display = 'none';
-  // } else {
-  //   document.getElementById(loadingDivId).style.display = 'none';
-  //   document.getElementById(mainDivId).style.display = 'block';
-  // }
 }
 
 function toTuple({ y, x }) {

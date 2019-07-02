@@ -1,18 +1,16 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const webpack = require('webpack')
 
 const config = {
-    entry: __dirname + '/camera.js',
+    entry: __dirname + '/index.js',
     output: {
         filename: 'bundle.js',
         path: __dirname + '/dist'
     },
     mode: 'development',
     plugins: [
-        new HtmlWebpackPlugin({
-            template: 'entries/index.html',
-            filename: './index.html', // 输出文件【注意：这里的根路径是module.exports.output.path】
-        })
+        new HtmlWebpackPlugin(),
     ]
-  };
-  
-  module.exports = config;
+};
+
+module.exports = config;
