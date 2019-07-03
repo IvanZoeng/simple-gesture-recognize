@@ -10,7 +10,10 @@ const config = {
     mode: 'development',
     plugins: [
         new HtmlWebpackPlugin(),
-    ]
+    ],
+    node: {
+        fs: 'empty'
+    }
 };
 
 module.exports = config;

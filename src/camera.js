@@ -2,6 +2,7 @@ import * as posenet from '@tensorflow-models/posenet';
 import _ from 'lodash'
 import {check} from './check'
 import {getConfig} from './config'
+import * as tf from '@tensorflow/tfjs'
 
 import { drawBoundingBox, drawKeypoints, drawSkeleton } from './demo_util';
 
@@ -23,7 +24,7 @@ async function setupCamera() {
   getConfig().parentNode.appendChild(video)
   video.style.display = 'none'
   video.style.scaleX = '-1'
-  video.width = getConfig().videoWidth; 
+  video.width = getConfig().videoWidth;
   video.height = getConfig().videoHeight;
 
   await startVideo()
@@ -65,8 +66,8 @@ export async function startVideo() {
 
 const defaultQuantBytes = 2;
 
-const defaultMobileNetMultiplier = 0.75;
-const defaultMobileNetStride = 16;
+const defaultMobileNetMultiplier = 0.5;
+const defaultMobileNetStride = 32;
 const defaultMobileNetInputResolution = 513;
 
 const guiState = {
@@ -174,13 +175,19 @@ function detectPoseInRealTime(video, net) {
  * available camera devices, and setting off the detectPoseInRealTime function.
  */
 export async function bindPage() {
-  const net = await posenet.load({
-    architecture: guiState.input.architecture,
-    outputStride: guiState.input.outputStride,
-    inputResolution: guiState.input.inputResolution,
-    multiplier: guiState.input.multiplier,
-    quantBytes: guiState.input.quantBytes
-  });
+  // const net = await posenet.load({
+  //   architecture: guiState.input.architecture,
+  //   outputStride: 16,
+  //   inputResolution: guiState.input.inputResolution,
+  //   multiplier: guiState.input.multiplier,
+  //   quantBytes: guiState.input.quantBytes
+  // });
+
+  const model = await tf.loadGraphModel('http://106.14.120.30:9090/model/model.json')
+
+  const net = new posenet.PoseNet(new posenet.MobileNet(model, 16), 513)
+  //
+  console.log(net)
 
   try {
     video = await loadVideo();
@@ -229,3 +236,9 @@ navigator.getUserMedia = navigator.getUserMedia ||
   navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 // kick off the demo
 // bindPage();
+
+export function getPoseArr() {
+  return posesArr
+}
+
+console.log(posenet)

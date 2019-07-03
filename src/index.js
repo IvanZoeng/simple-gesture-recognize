@@ -1,4 +1,4 @@
-import { bindPage, startVideo, stopVideo } from './camera'
+import { bindPage, startVideo, stopVideo, getPoseArr } from './camera'
 import { setConfig } from './config'
 
 // setConfig({
@@ -22,9 +22,9 @@ import { setConfig } from './config'
 
 bindPage()
 
-
 export default {
     start: bindPage,
     setConfig,
-    stopVideo
+    stopVideo,
+    getPoseArr
 }
