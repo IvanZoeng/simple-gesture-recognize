@@ -1,7 +1,7 @@
 import * as posenet from '@tensorflow-models/posenet';
 import _ from 'lodash'
-import {check} from './check'
-import {getConfig} from './config'
+import { check } from './check'
+import { getConfig } from './config'
 import * as tf from '@tensorflow/tfjs'
 
 import { drawBoundingBox, drawKeypoints, drawSkeleton } from './demo_util';
@@ -44,7 +44,7 @@ async function loadVideo() {
 }
 
 export function stopVideo() {
-  if(stream && stream.getVideoTracks) {
+  if (stream && stream.getVideoTracks) {
     stream.getVideoTracks()[0].stop()
     canvas.style.display = 'none'
   }
@@ -105,7 +105,7 @@ const guiState = {
 function detectPoseInRealTime(video, net) {
   canvas = document.createElement('canvas');
   getConfig().parentNode.appendChild(canvas)
-  if(getConfig().showCanvas === false) {
+  if (getConfig().showCanvas === false) {
     canvas.style.display = 'none'
   }
   const ctx = canvas.getContext('2d');
@@ -183,11 +183,18 @@ export async function bindPage() {
   //   quantBytes: guiState.input.quantBytes
   // });
 
-  const model = await tf.loadGraphModel('http://106.14.120.30:9090/model/model.json')
+  // const net = await posenet.load({
+  //   architecture: 'ResNet50',
+  //   outputStride: 32,
+  //   inputResolution: 257,
+  //   quantBytes: 2,
+  // });
+  const modelOrigin = getConfig().modelOrigin === 'http'
+    ? 'http://106.14.120.30:9090/model/model.json'
+    : 'https://xcx.cjrsg.cn/imagesForDangjian/jiangyufeng/model/model.json'
+  const model = await tf.loadGraphModel(modelOrigin)
 
   const net = new posenet.PoseNet(new posenet.MobileNet(model, 16), 513)
-  //
-  console.log(net)
 
   try {
     video = await loadVideo();
