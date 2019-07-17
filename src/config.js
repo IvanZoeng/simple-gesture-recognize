@@ -14,7 +14,10 @@ const defaultConfig = {
     videoWidth: 600,
     videoHeight: 500,
     parentNode: document.getElementsByTagName('body')[0],
-    modelOrigin: 'http'
+    modelOrigin: 'http',
+    minPoseConfidence: 0.1,
+    minPartConfidence: 0.5,
+    maxPoseDetections: 1
 }
 
 let config = _.cloneDeep(defaultConfig)

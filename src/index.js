@@ -20,7 +20,7 @@ import { setConfig } from './config'
 //     videoHeight: 200
 // })
 
-bindPage()
+// bindPage()
 
 export default {
     start: bindPage,

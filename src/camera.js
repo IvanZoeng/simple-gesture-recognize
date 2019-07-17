@@ -8,8 +8,6 @@ import { drawBoundingBox, drawKeypoints, drawSkeleton } from './demo_util';
 
 // pose序列长度
 const POSE_SEQ_LENGTH = 3;
-// 最小分数
-const POSE_MIN_CONFIDENCE = 0.1;
 let posesArr = [];
 let stream;
 let video;
@@ -127,14 +125,14 @@ function detectPoseInRealTime(video, net) {
     let all_poses = await guiState.net.estimatePoses(video, {
       flipHorizontal: flipPoseHorizontal,
       decodingMethod: 'multi-person',
-      maxDetections: guiState.multiPoseDetection.maxPoseDetections,
-      scoreThreshold: guiState.multiPoseDetection.minPartConfidence,
+      maxDetections: getConfig().maxPoseDetections,
+      scoreThreshold: getConfig().minPartConfidence,
       nmsRadius: guiState.multiPoseDetection.nmsRadius
     });
 
     poses = poses.concat(all_poses);
-    minPoseConfidence = +guiState.multiPoseDetection.minPoseConfidence;
-    minPartConfidence = +guiState.multiPoseDetection.minPartConfidence;
+    minPoseConfidence = getConfig().minPoseConfidence;
+    minPartConfidence = getConfig().minPartConfidence;
 
     ctx.clearRect(0, 0, getConfig().videoWidth, getConfig().videoHeight);
 
@@ -210,7 +208,7 @@ function updatePosesArr(poses) {
   const pose = poses[0];
 
   // 忽略分数过小的
-  if (!pose || pose.score < POSE_MIN_CONFIDENCE) {
+  if (!pose || pose.score < getConfig().minPoseConfidence) {
     return
   }
 
@@ -223,16 +221,15 @@ function updatePosesArr(poses) {
 
 // 7 左肘 8 右肘 9 左手腕 10 右手腕
 function analyzePose(keypoints) {
-  let obj = {
-    leftWrist: keypoints[9].position,
-    rightWrist: keypoints[10].position,
-    leftElbow: keypoints[7].position,
-    rightElbow: keypoints[8].position,
+  let obj = {}
+  for (let keypoint of keypoints) {
+    let tmp = {
+      score: keypoint.score
+    }
+    Object.assign(tmp, keypoint.position)
+    obj[keypoint.part] = tmp
   }
-  Object.assign(obj.leftWrist, { score: keypoints[9].score })
-  Object.assign(obj.rightWrist, { score: keypoints[10].score })
-  Object.assign(obj.leftElbow, { score: keypoints[7].score })
-  Object.assign(obj.rightElbow, { score: keypoints[8].score })
+
 
   return obj
 }
