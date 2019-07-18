@@ -82,6 +82,6 @@ let handleCheck = _.throttle(
                 getConfig().upCB()
                 break;
         }
-    }, 500, {
+    }, getConfig().throttleTime, {
         trailing: false
     })

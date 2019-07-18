@@ -17,7 +17,8 @@ const defaultConfig = {
     modelOrigin: 'http',
     minPoseConfidence: 0.1,
     minPartConfidence: 0.5,
-    maxPoseDetections: 1
+    maxPoseDetections: 1,
+    throttleTime: 500
 }
 
 let config = _.cloneDeep(defaultConfig)
