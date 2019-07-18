@@ -245,4 +245,4 @@ export function getPoseArr() {
   return posesArr
 }
 
-console.log(posenet)
+// console.log(posenet)

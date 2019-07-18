@@ -1,9 +1,9 @@
 import _ from 'lodash'
 import { getConfig } from './config'
 
-const SCORE_THRESHOLD = 0.1
-const MAIN_THRESHOLD = 30
-const CROSS_THRESHOLD = 10
+const VERTICAL_THRESHOLD = getConfig().videoHeight * getConfig().verticalPercent / 100
+const HORIZOTAL_THRESHOLD = getConfig().videoWidth * getConfig().horizonalPercent / 100
+const MIN_PART_CONFIDENCE = getConfig().minPartConfidence
 
 function isDetectHorizonal() {
     return getConfig().mode === 'h' || getConfig().mode === 'all'
@@ -37,10 +37,10 @@ export function check(val) {
     let deltaX, deltaY;
 
     // 右手满足时优先用右手，否则用左手，都不符合时退出
-    if (rightScore > SCORE_THRESHOLD) {
+    if (rightScore > MIN_PART_CONFIDENCE) {
         deltaX = frame.rightWrist.x - frame_last.rightWrist.x;
         deltaY = frame.rightWrist.y - frame_last.rightWrist.y;
-    } else if (leftScore > SCORE_THRESHOLD) {
+    } else if (leftScore > MIN_PART_CONFIDENCE) {
         deltaX = frame.leftWrist.x - frame_last.leftWrist.x;
         deltaY = frame.leftWrist.y - frame_last.leftWrist.y;
     } else {
@@ -50,17 +50,17 @@ export function check(val) {
     const k = Math.abs(deltaY / deltaX);
 
     if (isDetectHorizonal() && k < 0.3) {
-        if (deltaX > MAIN_THRESHOLD) {
+        if (deltaX > HORIZOTAL_THRESHOLD) {
             handleCheck('right')
-        } else if (deltaX < -MAIN_THRESHOLD) {
+        } else if (deltaX < -HORIZOTAL_THRESHOLD) {
             handleCheck('left')
         }
     }
 
     if (isDetectVertical() && k > 3) {
-        if (deltaY > MAIN_THRESHOLD) {
+        if (deltaY > VERTICAL_THRESHOLD) {
             handleCheck('down')
-        } else if (deltaY < -MAIN_THRESHOLD) {
+        } else if (deltaY < -VERTICAL_THRESHOLD) {
             handleCheck('up')
         }
     }

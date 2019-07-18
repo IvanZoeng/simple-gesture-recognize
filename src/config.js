@@ -18,7 +18,10 @@ const defaultConfig = {
     minPoseConfidence: 0.1,
     minPartConfidence: 0.5,
     maxPoseDetections: 1,
-    throttleTime: 500
+    throttleTime: 500,
+    verticalPercent: 10,
+    horizonalPercent: 10,
+    showConfig: false,
 }
 
 let config = _.cloneDeep(defaultConfig)
@@ -33,6 +36,10 @@ function mergeConfig(userConfig) {
 
 export function setConfig(userConfig) {
     mergeConfig(userConfig)
+
+    if(getConfig().showConfig) {
+        console.log(getConfig())
+    }
 }
 
 
