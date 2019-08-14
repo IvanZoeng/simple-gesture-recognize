@@ -1,8 +1,6 @@
 import _ from 'lodash'
 import { getConfig } from './config'
 
-const VERTICAL_THRESHOLD = getConfig().videoHeight * getConfig().verticalPercent / 100
-const HORIZOTAL_THRESHOLD = getConfig().videoWidth * getConfig().horizonalPercent / 100
 const MIN_PART_CONFIDENCE = getConfig().minPartConfidence
 
 function isDetectHorizonal() {
@@ -19,7 +17,7 @@ export function check(val) {
     }
 
     const frame = val[0];
-    const frame_last = val[2];
+    const frame_last = val[val.length - 1];
 
     if (!frame_last) {
         return
@@ -50,17 +48,17 @@ export function check(val) {
     const k = Math.abs(deltaY / deltaX);
 
     if (isDetectHorizonal() && k < 0.3) {
-        if (deltaX > HORIZOTAL_THRESHOLD) {
+        if (deltaX > getConfig().videoWidth * getConfig().horizonalPercent / 100) {
             handleCheck('right')
-        } else if (deltaX < -HORIZOTAL_THRESHOLD) {
+        } else if (deltaX < -getConfig().videoWidth * getConfig().horizonalPercent / 100) {
             handleCheck('left')
         }
     }
 
     if (isDetectVertical() && k > 3) {
-        if (deltaY > VERTICAL_THRESHOLD) {
+        if (deltaY > getConfig().videoHeight * getConfig().verticalPercent / 100) {
             handleCheck('down')
-        } else if (deltaY < -VERTICAL_THRESHOLD) {
+        } else if (deltaY < -getConfig().videoHeight * getConfig().verticalPercent / 100) {
             handleCheck('up')
         }
     }

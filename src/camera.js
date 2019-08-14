@@ -7,7 +7,7 @@ import * as tf from '@tensorflow/tfjs'
 import { drawBoundingBox, drawKeypoints, drawSkeleton } from './demo_util';
 
 // pose序列长度
-const POSE_SEQ_LENGTH = 3;
+const POSE_SEQ_LENGTH = getConfig().poseSeqLength;
 let posesArr = [];
 let stream;
 let video;
